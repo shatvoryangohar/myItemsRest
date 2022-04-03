@@ -1,0 +1,9 @@
+spring:
+  datasource:
+   url: jdbc:mysql://localhost:3306/my_items2?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC
+   username: root
+   password: root
+
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
