@@ -7,3 +7,14 @@ spring:
   mvc:
     pathmatch:
       matching-strategy: ant_path_matcher
+
+server:
+  port: 8081
+
+jwt:
+  expiration: 330000
+  secret: 2ljfl%4k5j4l32@@FLDKFLDS
+
+myitems:
+  cb:
+   url: https://cb.am/latest.json.php
