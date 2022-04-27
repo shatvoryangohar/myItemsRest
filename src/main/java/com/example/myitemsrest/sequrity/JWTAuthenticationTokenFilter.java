@@ -1,6 +1,7 @@
 package com.example.myitemsrest.sequrity;
 
 import com.example.myitemsrest.util.JwtTokenUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -14,6 +15,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
+@Slf4j
 public class JWTAuthenticationTokenFilter extends OncePerRequestFilter {
 
     @Autowired
@@ -34,7 +36,9 @@ public class JWTAuthenticationTokenFilter extends OncePerRequestFilter {
             try {
                 username = tokenUtil.getUsernameFromToken(authToken);
             } catch (Exception e) {
-                logger.error(e);
+                log.error("Auth token is invalid {}, exception: {} ", authToken, e);
+                //               log.error(String.format("token is invalid: %s",authToken),e);
+//                logger.error(e);
             }
         }
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {

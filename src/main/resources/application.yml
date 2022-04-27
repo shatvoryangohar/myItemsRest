@@ -18,3 +18,18 @@ jwt:
 myitems:
   cb:
    url: https://cb.am/latest.json.php
+
+logging:
+  logback:
+   rollingpolicy:
+     file-name-pattern:  ${LOG_FILE}.%d{yyyy-MM-dd}.%i.gz # by date
+     max-file-size:  10MB # by size
+ file:
+    name: C:\Users\Gohar\IdeaProjects\myItemsRest\log\application-log.log
+ pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+  level:
+    root: info
+    com.example: info
+

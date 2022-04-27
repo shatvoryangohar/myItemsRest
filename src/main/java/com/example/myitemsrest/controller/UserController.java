@@ -8,7 +8,10 @@ import com.example.myitemsrest.repository.UserRepository;
 import com.example.myitemsrest.sequrity.CurrentUser;
 import com.example.myitemsrest.util.JwtTokenUtil;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -23,6 +26,7 @@ import java.util.*;
 
 @RestController
 @RequiredArgsConstructor
+@Slf4j
 public class UserController {
 
     private final UserRepository userRepository;
@@ -31,16 +35,21 @@ public class UserController {
     private final JwtTokenUtil jwtTokenUtil;
     private final RestTemplate restTemplate;
 
+//    private final Logger logger = LoggerFactory.getLogger(UserController.class);
+
     @Value("${myitems.cb.url}")
     private String cbUrl;
 
     @PostMapping("/users/auth")
     public ResponseEntity<UserLoginResponse> userLogin(@RequestBody UserLoginRequest loginRequest) {
         if (loginRequest.getEmail() != null && !loginRequest.getEmail().equals("")) {
+            log.info(loginRequest.getEmail() + "wants to get a token");
             Optional<User> byEmail = userRepository.findByEmail(loginRequest.getEmail());
             if (!byEmail.isPresent() || !passwordEncoder.matches(loginRequest.getPassword(), byEmail.get().getPassword())) {
+                log.warn("password are not matching for user: " + loginRequest.getEmail());
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
             }
+            log.info(loginRequest.getEmail() + "get the token");
             return ResponseEntity.ok(new UserLoginResponse(jwtTokenUtil.generateToken(byEmail.get().getEmail())));
         }
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
@@ -72,13 +81,16 @@ public class UserController {
     }
 
     @PostMapping("/users/")
-    public UserResponseDto saveUser(@RequestBody SaveUserRequest saveUserRequest) {
+    public ResponseEntity<UserResponseDto> saveUser(@RequestBody SaveUserRequest saveUserRequest) {
         User user = modelMapper.map(saveUserRequest, User.class);
         user.setRole(Role.USER);
 //        user.setActive(false);
 //        user.setToken(UUID.randomUUID().toString());
 //        user.setTokenCreatedDate(LocalDateTime.now());
         user.setPassword(passwordEncoder.encode(saveUserRequest.getPassword()));
+        if (userRepository.findByEmail(saveUserRequest.getEmail()).isPresent()) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).build();
+        }
         String rubCurrencyUrl = cbUrl + "?currency=RUB";
         ResponseEntity<HashMap> rubCurrency = restTemplate.getForEntity(rubCurrencyUrl, HashMap.class);
         HashMap<String, String> currencyMap = rubCurrency.getBody();
@@ -86,7 +98,7 @@ public class UserController {
             System.out.println(currencyMap.get("RUB"));
         }
         userRepository.save(user);
-        return modelMapper.map(user, UserResponseDto.class);
+        return ResponseEntity.ok(modelMapper.map(user, UserResponseDto.class));
     }
 
     @DeleteMapping("/users/{id}")

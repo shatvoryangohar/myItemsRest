@@ -1,0 +1,17 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:testdb
+    username: sa
+    password: password
+    driver-class-name: org.h2.Driver
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+
+
+jwt:
+ expiration: 330000
+ secret: 2ljfl%4k5j4l32@@FLDKFLDS
+
+myitems:
+  cb:
+    url: https://cb.am/latest.json.php
